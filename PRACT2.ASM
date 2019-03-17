@@ -9,6 +9,21 @@ orden		equ 3
 numdatos	equ 9
 left_offset	equ 7
 cell_size	equ 4
+instructions	db "================================= INSTRUCTIONS =================================", 10, 13
+		db "", 10, 13
+		db 9, "- YOU MUST INPUT 9 NUMBERS IN TOTAL FOR THE WHOLE MATRIX", 10, 13
+		db 9, "- EACH NUMBER MUST BE BETWEEN -16 AND 15, BOTH INCLUDED", 10, 13
+		db 9, "- EACH NUMBER MUST FOLLOW THE SYNTAX", 10, 13
+		db 9, "- ZERO CAN ONLY BE POSITIVE", 10, 13
+		db "", 10, 13
+		db "==================================== SYNTAX ===================================", 10, 13
+		db "", 10, 13
+		db "YOU MUST ENTER 3 CHARACTERS AFTER THE > IS DISPLAYED", 10, 13
+		db 9, "CHAR 1 - MUST BE EITHER + OR -", 10, 13
+		db 9, "CHAR 2 - MUST BE A NUMBER BETWEEN 0 AND 9, BOTH INCLUDED", 10, 13
+		db 9, "CHAR 3 - MUST BE A NUMBER BETWEEN 0 AND 9, BOTH INCLUDED", 10, 13
+		db "", 10, 13
+		db "================================================================================", 10, 13, '$'
 
 resultlow	dw 0
 resulthigh	dw 0
@@ -57,6 +72,8 @@ main:
 ; main is a fair function
 
 	call clear_screen
+	call print_instructions
+
 	call save_user_input
 
 	call clear_screen
@@ -125,7 +142,6 @@ num_input:
 
 		correct_neg:
 		neg ax
-		push ax
 		jmp num_input_end
 
 	positive_input:
@@ -503,6 +519,16 @@ print_16bit_number:
 		dec cx
 		cmp cx, 0
 		jnz print_remainders
+	ret
+
+print_instructions:
+; takes the hardcoded instructions from the datasegment and prints them in order
+; returns nothing
+
+	mov dx, offset instructions
+	mov ah, 9h
+	int 21h
+
 	ret
 
 end_end:
