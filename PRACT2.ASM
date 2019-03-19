@@ -24,11 +24,16 @@ instructions	db "================================= INSTRUCTIONS ================
 		db 9, "CHAR 3 - MUST BE A NUMBER BETWEEN 0 AND 9, BOTH INCLUDED", 10, 13
 		db "", 10, 13
 		db "================================================================================", 10, 13, '$'
+choice	db "=================================== PICK ONE ===================================", 10, 13
+		db 9, "INPUT 1 FOR PRELOADED MATRIX", 10, 13
+		db 9, "INPUT 2 FOR PICKING YOUR OWN", 10, 13
+		db "================================================================================", 10, 13, '$'
 
 resultlow	dw 0
 resulthigh	dw 0
 error_string	db 10, "Error, YOU did something wrong!", 10, 13, '$'
-matrixguard	db 9 dup(0)
+error_choice	db 10, "Error, that's not a choice", 10, 13, '$'
+matrixguard	db 1,2,15,-2,7,-11,0,-2,-16
 top		db "      |   |   |   |", 10, 13, '$'
 mid		db "|a| = |   |   |   | = ", '$'
 bot		db "      |   |   |   |", 10, 13, '$'
@@ -72,9 +77,7 @@ main:
 ; main is a fair function
 
 	call clear_screen
-	call print_instructions
-
-	call save_user_input
+	call make_a_choice
 
 	call clear_screen
 	call multiply
@@ -84,6 +87,27 @@ main:
 
 	jmp end_end
 
+make_a_choice:
+; takes nothing
+; returns either modifies preloaded matrix or nothing
+
+	call print_choice
+
+	mov ah, 1h	; get key
+	int 21h
+
+	cmp al, 31h			; key is 1
+	je preloaded	
+	cmp al, 32h			; key is 2
+	je user_input
+	call print_error	; key is something other than 1 or 2
+	
+	user_input:
+		call clear_screen			;load the matrix with custom values
+		call print_instructions
+		call save_user_input
+	preloaded:
+		ret
 
 save_user_input:
 ; takes nine numbers from user and saves them to matrixguard
@@ -526,6 +550,16 @@ print_instructions:
 ; returns nothing
 
 	mov dx, offset instructions
+	mov ah, 9h
+	int 21h
+
+	ret
+
+print_choice:
+; takes the instructions for making a choice and prints them
+; returns nothing
+
+	mov dx, offset choice
 	mov ah, 9h
 	int 21h
 
